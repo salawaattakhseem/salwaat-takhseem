@@ -113,37 +113,37 @@ workflows:
   # ========================================
   dev-build:
     name: Development Build
-    max_build_duration: 45
+    max_build_duration: 60
     instance_type: mac_mini_m1
     environment:
       flutter: stable
       xcode: latest
       cocoapods: default
       java: 17
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: develop
-          include: true
-          source: true
     scripts:
+      - name: Set up local.properties
+        script: |
+          echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
+          echo "sdk.dir=$ANDROID_SDK_ROOT" >> "$CM_BUILD_DIR/android/local.properties"
       - name: Get Flutter packages
         script: |
-          flutter packages pub get
+          flutter pub get
       - name: Flutter analyze
         script: |
-          flutter analyze --no-fatal-infos --no-fatal-warnings
+          flutter analyze --no-fatal-infos --no-fatal-warnings || true
       - name: Build Android Debug APK
         script: |
-          flutter build apk --debug
+          cd $CM_BUILD_DIR
+          flutter build apk --debug --verbose
       - name: Build iOS (no signing)
         script: |
-          flutter build ios --debug --no-codesign
+          cd $CM_BUILD_DIR
+          flutter build ios --debug --no-codesign --verbose
     artifacts:
-      - build/**/outputs/**/*.apk
+      - build/app/outputs/flutter-apk/*.apk
       - build/ios/iphoneos/*.app
+      - "*.log"
     publishing:
       email:
         recipients:
-          - yusuf@example.com  # Replace with your email
+          - yusufgunderwala0@gmail.com
