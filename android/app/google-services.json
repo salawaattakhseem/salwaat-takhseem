@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "173879700980",
+    "project_id": "salwaat-takhseem-f0233",
+    "storage_bucket": "salwaat-takhseem-f0233.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:173879700980:android:820af3ec39f4cc0cd2dda1",
+        "android_client_info": {
+          "package_name": "com.example.salwaat_takhseem"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7kYZsWquSGXZ-QeAGJh4zLsWWpHPFEu8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

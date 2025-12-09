@@ -1,0 +1,149 @@
+workflows:
+  # ========================================
+  # iOS Build Workflow
+  # ========================================
+  ios-workflow:
+    name: iOS Build
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    integrations:
+      app_store_connect: Codemagic  # Will be set up in Step 3
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.example.salwaatTakhseem
+      vars:
+        BUNDLE_ID: "com.example.salwaatTakhseem"
+        APP_NAME: "Salwaat Takhseem"
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles
+      - name: Get Flutter packages
+        script: |
+          flutter packages pub get
+      - name: Install CocoaPods dependencies
+        script: |
+          cd ios && pod install
+      - name: Flutter analyze
+        script: |
+          flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Build iOS
+        script: |
+          flutter build ipa --release \
+            --build-name=1.0.0 \
+            --build-number=$(($(app-store-connect get-latest-testflight-build-number "$APP_STORE_APP_ID") + 1)) \
+            --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+    publishing:
+      email:
+        recipients:
+          - yusuf@example.com  # Replace with your email
+        notify:
+          success: true
+          failure: true
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        beta_groups:
+          - Internal Testers
+
+  # ========================================
+  # Android Build Workflow
+  # ========================================
+  android-workflow:
+    name: Android Build
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    environment:
+      android_signing:
+        - salwaat_keystore  # Will be set up in Step 4
+      groups:
+        - google_play  # Will be set up in Step 4
+      vars:
+        PACKAGE_NAME: "com.example.salwaat_takhseem"
+        APP_NAME: "Salwaat Takhseem"
+      flutter: stable
+      java: 17
+    scripts:
+      - name: Set up local.properties
+        script: |
+          echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
+      - name: Get Flutter packages
+        script: |
+          flutter packages pub get
+      - name: Flutter analyze
+        script: |
+          flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Build AAB for Play Store
+        script: |
+          flutter build appbundle --release \
+            --build-name=1.0.0 \
+            --build-number=$BUILD_NUMBER
+      - name: Build APK (for direct distribution)
+        script: |
+          flutter build apk --release \
+            --build-name=1.0.0 \
+            --build-number=$BUILD_NUMBER
+    artifacts:
+      - build/**/outputs/**/*.aab
+      - build/**/outputs/**/*.apk
+      - build/**/outputs/**/mapping.txt
+      - flutter_drive.log
+    publishing:
+      email:
+        recipients:
+          - yusuf@example.com  # Replace with your email
+        notify:
+          success: true
+          failure: true
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: true
+
+  # ========================================
+  # Development Build (Both Platforms - Quick)
+  # ========================================
+  dev-build:
+    name: Development Build
+    max_build_duration: 45
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      java: 17
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: develop
+          include: true
+          source: true
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter packages pub get
+      - name: Flutter analyze
+        script: |
+          flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Build Android Debug APK
+        script: |
+          flutter build apk --debug
+      - name: Build iOS (no signing)
+        script: |
+          flutter build ios --debug --no-codesign
+    artifacts:
+      - build/**/outputs/**/*.apk
+      - build/ios/iphoneos/*.app
+    publishing:
+      email:
+        recipients:
+          - yusuf@example.com  # Replace with your email
