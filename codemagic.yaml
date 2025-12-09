@@ -109,41 +109,34 @@ workflows:
         submit_as_draft: true
 
   # ========================================
-  # Development Build (Both Platforms - Quick)
+  # iOS Development Build (Quick - No Signing)
   # ========================================
   dev-build:
-    name: Development Build
+    name: iOS Development Build
     max_build_duration: 60
     instance_type: mac_mini_m1
     environment:
       flutter: stable
       xcode: latest
       cocoapods: default
-      java: 17
     scripts:
-      - name: Set up local.properties
-        script: |
-          echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
-          echo "sdk.dir=$ANDROID_SDK_ROOT" >> "$CM_BUILD_DIR/android/local.properties"
       - name: Get Flutter packages
         script: |
           flutter pub get
+      - name: Install CocoaPods dependencies
+        script: |
+          cd ios && pod install
       - name: Flutter analyze
         script: |
           flutter analyze --no-fatal-infos --no-fatal-warnings || true
-      - name: Build Android Debug APK
-        script: |
-          cd $CM_BUILD_DIR
-          flutter build apk --debug --verbose
       - name: Build iOS (no signing)
         script: |
-          cd $CM_BUILD_DIR
-          flutter build ios --debug --no-codesign --verbose
+          flutter build ios --debug --no-codesign
     artifacts:
-      - build/app/outputs/flutter-apk/*.apk
       - build/ios/iphoneos/*.app
       - "*.log"
     publishing:
       email:
         recipients:
           - yusufgunderwala0@gmail.com
+
