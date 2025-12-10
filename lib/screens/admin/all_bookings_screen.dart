@@ -115,10 +115,10 @@ class _AllBookingsScreenState extends State<AllBookingsScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.7),
+                        color: Colors.white.withOpacity(0.7),
                         border: Border(
                           bottom: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.3),
+                            color: Colors.white.withOpacity(0.3),
                           ),
                         ),
                       ),

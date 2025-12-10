@@ -56,9 +56,9 @@ class AdminBackground extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  const Color(0xFFFAF8F5).withValues(alpha: overlayOpacity),
-                  const Color(0xFFF5F0E8).withValues(alpha: overlayOpacity * 0.95),
-                  const Color(0xFFF0EBE3).withValues(alpha: overlayOpacity * 0.9),
+                  const Color(0xFFFAF8F5).withOpacity(overlayOpacity),
+                  const Color(0xFFF5F0E8).withOpacity(overlayOpacity * 0.95),
+                  const Color(0xFFF0EBE3).withOpacity(overlayOpacity * 0.9),
                 ],
                 stops: const [0.0, 0.5, 1.0],
               ),
@@ -100,15 +100,15 @@ class GlassCard extends StatelessWidget {
           child: Container(
             padding: padding ?? const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.7),
+              color: Colors.white.withOpacity(0.7),
               borderRadius: BorderRadius.circular(borderRadius),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
+                color: Colors.white.withOpacity(0.3),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -150,18 +150,18 @@ class GlassStatCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.white.withValues(alpha: 0.8),
-                Colors.white.withValues(alpha: 0.6),
+                Colors.white.withOpacity(0.8),
+                Colors.white.withOpacity(0.6),
               ],
             ),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.5),
+              color: Colors.white.withOpacity(0.5),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: color.withValues(alpha: 0.15),
+                color: color.withOpacity(0.15),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -175,8 +175,8 @@ class GlassStatCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      color.withValues(alpha: 0.2),
-                      color.withValues(alpha: 0.1),
+                      color.withOpacity(0.2),
+                      color.withOpacity(0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
@@ -247,13 +247,13 @@ class GlassActionTile extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.white.withValues(alpha: 0.75),
-                      Colors.white.withValues(alpha: 0.55),
+                      Colors.white.withOpacity(0.75),
+                      Colors.white.withOpacity(0.55),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.4),
+                    color: Colors.white.withOpacity(0.4),
                     width: 1.5,
                   ),
                 ),
@@ -264,8 +264,8 @@ class GlassActionTile extends StatelessWidget {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            accentColor.withValues(alpha: 0.2),
-                            accentColor.withValues(alpha: 0.1),
+                            accentColor.withOpacity(0.2),
+                            accentColor.withOpacity(0.1),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),

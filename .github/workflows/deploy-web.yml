@@ -25,14 +25,16 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
           channel: 'stable'
+
+      - name: Flutter version
+        run: flutter --version
 
       - name: Get dependencies
         run: flutter pub get
 
       - name: Build web
-        run: flutter build web --base-href "/salwaat-takhseem/" --release --no-tree-shake-icons
+        run: flutter build web --base-href "/salwaat-takhseem/" --release --no-tree-shake-icons --verbose
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
