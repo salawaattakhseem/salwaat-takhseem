@@ -126,19 +126,65 @@ class AppRoutes {
       settings: settings,
       pageBuilder: (context, animation, secondaryAnimation) => page,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0);
-        const end = Offset.zero;
-        const curve = Curves.easeInOutCubic;
+        // Fade animation
+        final fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: animation,
+            curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+          ),
+        );
         
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        var offsetAnimation = animation.drive(tween);
+        // Slide animation with spring feel
+        final slideAnimation = Tween<Offset>(
+          begin: const Offset(0.08, 0.0),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        ));
         
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
+        // Subtle scale animation
+        final scaleAnimation = Tween<double>(begin: 0.96, end: 1.0).animate(
+          CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+          ),
+        );
+        
+        // Exit animation for old page
+        final exitFade = Tween<double>(begin: 1.0, end: 0.9).animate(
+          CurvedAnimation(
+            parent: secondaryAnimation,
+            curve: Curves.easeInOut,
+          ),
+        );
+        
+        final exitScale = Tween<double>(begin: 1.0, end: 0.95).animate(
+          CurvedAnimation(
+            parent: secondaryAnimation,
+            curve: Curves.easeInOut,
+          ),
+        );
+
+        return FadeTransition(
+          opacity: exitFade,
+          child: ScaleTransition(
+            scale: exitScale,
+            child: FadeTransition(
+              opacity: fadeAnimation,
+              child: SlideTransition(
+                position: slideAnimation,
+                child: ScaleTransition(
+                  scale: scaleAnimation,
+                  child: child,
+                ),
+              ),
+            ),
+          ),
         );
       },
-      transitionDuration: const Duration(milliseconds: 300),
+      transitionDuration: const Duration(milliseconds: 350),
+      reverseTransitionDuration: const Duration(milliseconds: 300),
     );
   }
 }

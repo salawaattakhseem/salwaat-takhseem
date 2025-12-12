@@ -12,6 +12,7 @@ import '../../widgets/booking_card.dart';
 import '../../widgets/loading_overlay.dart';
 import '../../widgets/date_header_widget.dart';
 import '../../utils/helpers.dart';
+import '../../utils/animation_utils.dart';
 
 class UserDashboard extends StatefulWidget {
   const UserDashboard({super.key});
@@ -98,26 +99,30 @@ class _UserDashboardState extends State<UserDashboard> {
                 const SizedBox(height: 20),
                 
                 // Quick Actions
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildActionCard(
-                        icon: Iconsax.calendar_add,
-                        title: 'Book Slot',
-                        subtitle: 'Select date',
-                        onTap: () => Navigator.pushNamed(context, AppRoutes.calendar),
+                StaggeredListAnimation(
+                  index: 0,
+                  delay: const Duration(milliseconds: 100),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _buildActionCard(
+                          icon: Iconsax.calendar_add,
+                          title: 'Book Slot',
+                          subtitle: 'Select date',
+                          onTap: () => Navigator.pushNamed(context, AppRoutes.calendar),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildActionCard(
-                        icon: Iconsax.ticket,
-                        title: 'My Bookings',
-                        subtitle: '${bookingProvider.userBookings.length} active',
-                        onTap: () => Navigator.pushNamed(context, AppRoutes.myBooking),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildActionCard(
+                          icon: Iconsax.ticket,
+                          title: 'My Bookings',
+                          subtitle: '${bookingProvider.userBookings.length} active',
+                          onTap: () => Navigator.pushNamed(context, AppRoutes.myBooking),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 
                 const SizedBox(height: 12),
@@ -216,49 +221,11 @@ class _UserDashboardState extends State<UserDashboard> {
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return Card(
-      elevation: 3,
-      shadowColor: AppColors.darkBrown.withOpacity(0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.lightBrown.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: AppColors.darkBrown, size: 24),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return _AnimatedActionCard(
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
+      onTap: onTap,
     );
   }
 
@@ -304,6 +271,114 @@ class _UserDashboardState extends State<UserDashboard> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Animated action card with press effect
+class _AnimatedActionCard extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _AnimatedActionCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  State<_AnimatedActionCard> createState() => _AnimatedActionCardState();
+}
+
+class _AnimatedActionCardState extends State<_AnimatedActionCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _elevationAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    _elevationAnimation = Tween<double>(begin: 3.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => _controller.forward(),
+      onTapUp: (_) {
+        _controller.reverse();
+        widget.onTap();
+      },
+      onTapCancel: () => _controller.reverse(),
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Card(
+              elevation: _elevationAnimation.value,
+              shadowColor: AppColors.darkBrown.withOpacity(0.15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.lightBrown.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(widget.icon, color: AppColors.darkBrown, size: 24),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      widget.title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.subtitle,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

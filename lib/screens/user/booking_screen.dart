@@ -11,9 +11,11 @@ import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/loading_overlay.dart';
+import '../../widgets/premium_widgets.dart';
 import '../../utils/validators.dart';
 import '../../utils/helpers.dart';
 import '../../utils/date_utils.dart';
+import 'package:confetti/confetti.dart';
 
 class BookingScreen extends StatefulWidget {
   final DateTime? selectedDate;
@@ -37,10 +39,14 @@ class _BookingScreenState extends State<BookingScreen> {
   final List<TextEditingController> _partnerControllers = [];
   final List<String?> _validatedPartnerNames = [];
   final List<bool> _isValidatingPartner = [];
+  
+  // Confetti controller
+  late ConfettiController _confettiController;
 
   @override
   void initState() {
     super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 2));
     _loadAvailability();
     _initPartnerControllers();
   }
@@ -56,6 +62,7 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   void dispose() {
     _itemController.dispose();
+    _confettiController.dispose();
     for (var controller in _partnerControllers) {
       controller.dispose();
     }
@@ -142,9 +149,25 @@ class _BookingScreenState extends State<BookingScreen> {
 
     if (mounted) {
       if (result.success) {
-        Helpers.showSnackBar(context, result.message);
-        Navigator.pop(context);
-        Navigator.pop(context); // Go back to dashboard
+        // Show confetti celebration!
+        _confettiController.play();
+        
+        // Show success dialog - user can enjoy the celebration
+        await SuccessDialog.show(
+          context,
+          title: 'Booking Confirmed! 🎉',
+          message: 'Your slot has been reserved successfully.',
+          buttonText: 'Continue',
+          onPressed: () {
+            Navigator.pop(context); // Close dialog
+          },
+        );
+        
+        // Navigate back to dashboard after dialog closed
+        if (mounted) {
+          Navigator.pop(context); // Close booking screen
+          Navigator.pop(context); // Close calendar → go to dashboard
+        }
       } else {
         Helpers.showSnackBar(context, result.message, isError: true);
       }
@@ -164,9 +187,11 @@ class _BookingScreenState extends State<BookingScreen> {
 
     return Scaffold(
       appBar: const CustomAppBar(title: 'Book Slot'),
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
+      body: ConfettiOverlay(
+        controller: _confettiController,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
           // Background Image
           Image.asset(
             'img/Fatemi_Design.png',
@@ -555,6 +580,7 @@ class _BookingScreenState extends State<BookingScreen> {
         ),
       ),
         ],
+        ),
       ),
     );
   }

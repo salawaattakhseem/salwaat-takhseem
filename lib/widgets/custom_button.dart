@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
+import '../utils/haptic_utils.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -34,7 +35,10 @@ class CustomButton extends StatelessWidget {
         width: width ?? double.infinity,
         height: height,
         child: OutlinedButton(
-          onPressed: isLoading ? null : onPressed,
+          onPressed: isLoading ? null : () {
+            HapticUtils.lightTap();
+            onPressed?.call();
+          },
           style: OutlinedButton.styleFrom(
             side: BorderSide(
               color: backgroundColor ?? AppColors.darkBrown,
@@ -53,7 +57,10 @@ class CustomButton extends StatelessWidget {
       width: width ?? double.infinity,
       height: height,
       child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
+        onPressed: isLoading ? null : () {
+          HapticUtils.lightTap();
+          onPressed?.call();
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor ?? AppColors.darkBrown,
           foregroundColor: textColor ?? Colors.white,

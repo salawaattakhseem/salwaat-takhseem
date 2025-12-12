@@ -1,24 +1,63 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
+import 'haptic_utils.dart';
 
 class Helpers {
-  // Show snackbar
+  // Show enhanced snackbar with icon
   static void showSnackBar(
     BuildContext context,
     String message, {
     bool isError = false,
+    bool isSuccess = false,
     Duration duration = const Duration(seconds: 3),
   }) {
+    // Trigger haptic feedback
+    if (isError) {
+      HapticUtils.warning();
+    } else if (isSuccess) {
+      HapticUtils.success();
+    }
+    
+    IconData icon;
+    Color bgColor;
+    
+    if (isError) {
+      icon = Icons.error_outline_rounded;
+      bgColor = AppColors.error;
+    } else if (isSuccess) {
+      icon = Icons.check_circle_outline_rounded;
+      bgColor = AppColors.success;
+    } else {
+      icon = Icons.info_outline_rounded;
+      bgColor = AppColors.darkBrown;
+    }
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? AppColors.error : AppColors.darkBrown,
+        content: Row(
+          children: [
+            Icon(icon, color: Colors.white, size: 22),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: bgColor,
         duration: duration,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
         ),
+        elevation: 6,
       ),
     );
   }

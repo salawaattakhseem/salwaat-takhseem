@@ -131,8 +131,6 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             
-            const SizedBox(height: 20),
-            
             const SizedBox(height: 32),
             
             // Logout Button

@@ -8,8 +8,10 @@ import '../../providers/booking_provider.dart';
 import '../../services/database_service.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/booking_card.dart';
+import '../../widgets/skeleton_widgets.dart';
 import '../../widgets/loading_overlay.dart';
 import '../../utils/helpers.dart';
+import '../../utils/animation_utils.dart';
 
 class MyBookingScreen extends StatefulWidget {
   const MyBookingScreen({super.key});
@@ -154,21 +156,79 @@ class _MyBookingScreenState extends State<MyBookingScreen> with SingleTickerProv
                 RefreshIndicator(
                   onRefresh: _loadBookings,
                   color: AppColors.darkBrown,
-                  child: upcomingBookings.isEmpty
-                      ? _buildEmptyState(isUpcoming: true)
-                      : ListView.builder(
+                  child: bookingProvider.isLoading
+                      ? ListView.builder(
                           padding: const EdgeInsets.all(20),
-                          itemCount: upcomingBookings.length,
-                          itemBuilder: (context, index) {
-                            final booking = upcomingBookings[index];
-                            final attendanceCount = _attendanceCounts[booking.date];
-                            return BookingCard(
-                              booking: booking,
-                              onDelete: () => _handleCancelBooking(booking.id),
-                              expectedAttendance: attendanceCount,
-                            );
-                          },
-                        ),
+                          itemCount: 5,
+                          itemBuilder: (_, __) => const SkeletonBookingCard(),
+                        )
+                      : upcomingBookings.isEmpty
+                          ? _buildEmptyState(isUpcoming: true)
+                          : ListView.builder(
+                              padding: const EdgeInsets.all(20),
+                              itemCount: upcomingBookings.length,
+                              itemBuilder: (context, index) {
+                                final booking = upcomingBookings[index];
+                                final attendanceCount = _attendanceCounts[booking.date];
+                                return StaggeredListAnimation(
+                                  index: index,
+                                  child: Dismissible(
+                                    key: Key(booking.id),
+                                    direction: DismissDirection.endToStart,
+                                    // Require 60% swipe to dismiss (prevents accidental tab switch)
+                                    dismissThresholds: const {
+                                      DismissDirection.endToStart: 0.6,
+                                    },
+                                    confirmDismiss: (direction) async {
+                                      // Show confirmation dialog
+                                      return await Helpers.showConfirmationDialog(
+                                        context,
+                                        title: 'Cancel Booking?',
+                                        message: 'Are you sure you want to cancel this booking?',
+                                        confirmText: 'Yes, Cancel',
+                                        isDestructive: true,
+                                      );
+                                    },
+                                    onDismissed: (direction) {
+                                      _handleCancelBooking(booking.id);
+                                    },
+                                    background: Container(
+                                      margin: const EdgeInsets.only(bottom: 12),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.error,
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      alignment: Alignment.centerRight,
+                                      padding: const EdgeInsets.only(right: 24),
+                                      child: const Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            'Cancel',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          SizedBox(width: 8),
+                                          Icon(
+                                            Iconsax.trash,
+                                            color: Colors.white,
+                                            size: 24,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    child: BookingCard(
+                                      booking: booking,
+                                      onDelete: () => _handleCancelBooking(booking.id),
+                                      expectedAttendance: attendanceCount,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                 ),
                 // History Tab
                 RefreshIndicator(
@@ -182,10 +242,13 @@ class _MyBookingScreenState extends State<MyBookingScreen> with SingleTickerProv
                           itemBuilder: (context, index) {
                             final booking = completedBookings[index];
                             final attendanceCount = _attendanceCounts[booking.date];
-                            return BookingCard(
-                              booking: booking,
-                              showDeleteButton: false, // Can't cancel completed bookings
-                              expectedAttendance: attendanceCount,
+                            return StaggeredListAnimation(
+                              index: index,
+                              child: BookingCard(
+                                booking: booking,
+                                showDeleteButton: false,
+                                expectedAttendance: attendanceCount,
+                              ),
                             );
                           },
                         ),
