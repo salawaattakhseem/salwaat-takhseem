@@ -9,6 +9,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? leading;
   final double elevation;
   final Color? backgroundColor;
+  final PreferredSizeWidget? bottom;
 
   const CustomAppBar({
     super.key,
@@ -19,6 +20,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leading,
     this.elevation = 0,
     this.backgroundColor,
+    this.bottom,
   });
 
   @override
@@ -41,11 +43,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               : null),
       automaticallyImplyLeading: showBackButton,
       actions: actions,
+      bottom: bottom,
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => Size.fromHeight(
+    kToolbarHeight + (bottom?.preferredSize.height ?? 0),
+  );
 }
 
 // Dashboard App Bar with profile

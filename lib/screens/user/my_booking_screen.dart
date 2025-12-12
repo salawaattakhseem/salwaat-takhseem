@@ -18,14 +18,22 @@ class MyBookingScreen extends StatefulWidget {
   State<MyBookingScreen> createState() => _MyBookingScreenState();
 }
 
-class _MyBookingScreenState extends State<MyBookingScreen> {
+class _MyBookingScreenState extends State<MyBookingScreen> with SingleTickerProviderStateMixin {
   final _databaseService = DatabaseService();
   Map<String, int> _attendanceCounts = {};
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     _loadBookings();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadBookings() async {
@@ -76,9 +84,51 @@ class _MyBookingScreenState extends State<MyBookingScreen> {
   @override
   Widget build(BuildContext context) {
     final bookingProvider = context.watch<BookingProvider>();
+    
+    // Separate bookings into upcoming and completed
+    final upcomingBookings = bookingProvider.userBookings
+        .where((b) => b.isUpcoming)
+        .toList()
+      ..sort((a, b) => a.dateTime.compareTo(b.dateTime)); // Ascending
+    
+    final completedBookings = bookingProvider.userBookings
+        .where((b) => b.isCompleted)
+        .toList()
+      ..sort((a, b) => b.dateTime.compareTo(a.dateTime)); // Descending (newest first)
 
     return Scaffold(
-      appBar: const CustomAppBar(title: 'My Bookings'),
+      appBar: CustomAppBar(
+        title: 'My Bookings',
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: AppColors.textPrimary,
+          unselectedLabelColor: AppColors.textLight,
+          indicatorColor: AppColors.darkBrown,
+          indicatorWeight: 3,
+          tabs: [
+            Tab(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Iconsax.calendar_tick, size: 18),
+                  const SizedBox(width: 6),
+                  Text('Upcoming (${upcomingBookings.length})'),
+                ],
+              ),
+            ),
+            Tab(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Iconsax.tick_circle, size: 18),
+                  const SizedBox(width: 6),
+                  Text('History (${completedBookings.length})'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -97,24 +147,50 @@ class _MyBookingScreenState extends State<MyBookingScreen> {
           // Content
           LoadingOverlay(
             isLoading: bookingProvider.isLoading,
-            child: RefreshIndicator(
-              onRefresh: _loadBookings,
-              color: AppColors.darkBrown,
-              child: bookingProvider.userBookings.isEmpty
-                  ? _buildEmptyState()
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(20),
-                      itemCount: bookingProvider.userBookings.length,
-                      itemBuilder: (context, index) {
-                        final booking = bookingProvider.userBookings[index];
-                        final attendanceCount = _attendanceCounts[booking.date];
-                        return BookingCard(
-                          booking: booking,
-                          onDelete: () => _handleCancelBooking(booking.id),
-                          expectedAttendance: attendanceCount,
-                        );
-                      },
-                    ),
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // Upcoming Tab
+                RefreshIndicator(
+                  onRefresh: _loadBookings,
+                  color: AppColors.darkBrown,
+                  child: upcomingBookings.isEmpty
+                      ? _buildEmptyState(isUpcoming: true)
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(20),
+                          itemCount: upcomingBookings.length,
+                          itemBuilder: (context, index) {
+                            final booking = upcomingBookings[index];
+                            final attendanceCount = _attendanceCounts[booking.date];
+                            return BookingCard(
+                              booking: booking,
+                              onDelete: () => _handleCancelBooking(booking.id),
+                              expectedAttendance: attendanceCount,
+                            );
+                          },
+                        ),
+                ),
+                // History Tab
+                RefreshIndicator(
+                  onRefresh: _loadBookings,
+                  color: AppColors.darkBrown,
+                  child: completedBookings.isEmpty
+                      ? _buildEmptyState(isUpcoming: false)
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(20),
+                          itemCount: completedBookings.length,
+                          itemBuilder: (context, index) {
+                            final booking = completedBookings[index];
+                            final attendanceCount = _attendanceCounts[booking.date];
+                            return BookingCard(
+                              booking: booking,
+                              showDeleteButton: false, // Can't cancel completed bookings
+                              expectedAttendance: attendanceCount,
+                            );
+                          },
+                        ),
+                ),
+              ],
             ),
           ),
         ],
@@ -122,7 +198,7 @@ class _MyBookingScreenState extends State<MyBookingScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState({required bool isUpcoming}) {
     return Center(
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -137,25 +213,27 @@ class _MyBookingScreenState extends State<MyBookingScreen> {
                   color: AppColors.lightBrown.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Iconsax.calendar,
+                child: Icon(
+                  isUpcoming ? Iconsax.calendar : Iconsax.tick_circle,
                   size: 64,
                   color: AppColors.lightBrown,
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'No Bookings Yet',
-                style: TextStyle(
+              Text(
+                isUpcoming ? 'No Upcoming Bookings' : 'No Booking History',
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Your booked slots will appear here',
-                style: TextStyle(
+              Text(
+                isUpcoming 
+                    ? 'Your upcoming bookings will appear here'
+                    : 'Your completed bookings will appear here',
+                style: const TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary,
                 ),

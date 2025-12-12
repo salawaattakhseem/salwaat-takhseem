@@ -102,4 +102,18 @@ class BookingModel {
   }
 
   DateTime get dateTime => DateTime.parse(date);
+  
+  /// Check if booking date has passed (completed)
+  bool get isCompleted {
+    final now = DateTime.now();
+    final bookingDate = dateTime;
+    // Completed if booking date is before today
+    return bookingDate.isBefore(DateTime(now.year, now.month, now.day));
+  }
+  
+  /// Check if booking is upcoming (not yet completed)
+  bool get isUpcoming => !isCompleted;
+  
+  /// Get status string for display
+  String get statusText => isCompleted ? 'Completed' : 'Upcoming';
 }
