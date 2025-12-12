@@ -1,0 +1,99 @@
+# Daily Supabase Database Backup
+# Runs automatically every day at 6:00 AM IST (00:30 UTC)
+# Backups are stored in the 'backups' folder of this repo
+
+name: Daily Database Backup
+
+on:
+  schedule:
+    # Run at 00:30 UTC (6:00 AM IST) every day
+    - cron: '30 0 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Create backup directory
+        run: mkdir -p backups
+
+      - name: Backup Supabase Tables
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          BACKUP_DIR="backups/$DATE"
+          mkdir -p "$BACKUP_DIR"
+          
+          echo "📦 Starting backup for $DATE..."
+          
+          # Backup users table
+          echo "Backing up users table..."
+          curl -s "$SUPABASE_URL/rest/v1/users?select=*" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            > "$BACKUP_DIR/users.json"
+          
+          # Backup bookings table
+          echo "Backing up bookings table..."
+          curl -s "$SUPABASE_URL/rest/v1/bookings?select=*" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            > "$BACKUP_DIR/bookings.json"
+          
+          # Backup mohallahs table
+          echo "Backing up mohallahs table..."
+          curl -s "$SUPABASE_URL/rest/v1/mohallahs?select=*" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            > "$BACKUP_DIR/mohallahs.json"
+          
+          # Backup attendance_counts table
+          echo "Backing up attendance_counts table..."
+          curl -s "$SUPABASE_URL/rest/v1/attendance_counts?select=*" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            > "$BACKUP_DIR/attendance_counts.json"
+          
+          # Create backup summary
+          echo "Creating backup summary..."
+          echo "# Backup Summary - $DATE" > "$BACKUP_DIR/README.md"
+          echo "" >> "$BACKUP_DIR/README.md"
+          echo "| Table | Records |" >> "$BACKUP_DIR/README.md"
+          echo "|-------|---------|" >> "$BACKUP_DIR/README.md"
+          echo "| users | $(cat $BACKUP_DIR/users.json | jq length) |" >> "$BACKUP_DIR/README.md"
+          echo "| bookings | $(cat $BACKUP_DIR/bookings.json | jq length) |" >> "$BACKUP_DIR/README.md"
+          echo "| mohallahs | $(cat $BACKUP_DIR/mohallahs.json | jq length) |" >> "$BACKUP_DIR/README.md"
+          echo "| attendance_counts | $(cat $BACKUP_DIR/attendance_counts.json | jq length) |" >> "$BACKUP_DIR/README.md"
+          
+          echo "✅ Backup complete!"
+
+      - name: Commit and push backup
+        run: |
+          git config --local user.email "salawaat.takhseem@gmail.com"
+          git config --local user.name "Salwaat Takhseem Backup"
+          git add backups/
+          git commit -m "📦 Daily backup - $(date +%Y-%m-%d)" || echo "No changes to commit"
+          git push
+
+      - name: Cleanup old backups (keep last 30 days)
+        run: |
+          cd backups
+          # Keep only last 30 backups
+          ls -d */ 2>/dev/null | head -n -30 | xargs -r rm -rf
+          cd ..
+          git add backups/
+          git commit -m "🗑️ Cleanup old backups" || echo "No cleanup needed"
+          git push || echo "Nothing to push"
