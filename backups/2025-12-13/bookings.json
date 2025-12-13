@@ -1,0 +1,13 @@
+[{"id":"8532b97c-d64b-488a-b52b-523c9d27b5f2","its":"22222222","mohallah":"Imadi Mohallah","date":"2025-12-20","item":"Badam Shek","created_at":"2025-12-09T03:49:44.043518+00:00","partner_its":"40403867,40403869,40403868"}, 
+ {"id":"fb68d2f9-024c-4a93-8e0a-d2f012282af5","its":"22222222","mohallah":"Imadi Mohallah","date":"2025-12-21","item":"Biscuit","created_at":"2025-12-09T14:02:15.58833+00:00","partner_its":null}, 
+ {"id":"55246a50-84b6-4667-bf7a-f4f84619121b","its":"40403868","mohallah":"Imadi Mohallah","date":"2025-12-25","item":"Lassi","created_at":"2025-12-10T05:20:57.483595+00:00","partner_its":null}, 
+ {"id":"c2e4740e-20b1-4de8-9e47-b0ee731c0af5","its":"40403868","mohallah":"Imadi Mohallah","date":"2025-12-26","item":"Coffee","created_at":"2025-12-10T05:21:15.185122+00:00","partner_its":null}, 
+ {"id":"d486e639-fb2a-4c93-bd2f-535d9926798d","its":"12300021","mohallah":"Fakhri Society","date":"2026-01-02","item":"gud","created_at":"2025-12-10T14:33:31.421825+00:00","partner_its":"12300022"}, 
+ {"id":"7fcb8e4d-a013-4818-8dfc-9158d533ac4f","its":"12345003","mohallah":"Fatambu Hall","date":"2026-01-09","item":"chocolates","created_at":"2025-12-10T19:43:43.280052+00:00","partner_its":null}, 
+ {"id":"88540513-33cf-44f9-8d84-e971309afc27","its":"12345002","mohallah":"Fatambu Hall","date":"2025-12-20","item":"Apple","created_at":"2025-12-11T18:36:52.172707+00:00","partner_its":null}, 
+ {"id":"3e95f98a-f6ec-49ba-93c0-37cce8478d92","its":"12345003","mohallah":"Fatambu Hall","date":"2025-12-29","item":"Biscuits","created_at":"2025-12-12T11:45:00.784782+00:00","partner_its":"12345004"}, 
+ {"id":"fe94c6a0-4bc8-44aa-9745-140f9cd38f53","its":"12345003","mohallah":"Fatambu Hall","date":"2025-12-30","item":"Cake","created_at":"2025-12-12T11:47:44.876221+00:00","partner_its":null}, 
+ {"id":"6aed2d7d-4944-4c90-8fd5-c02154e5ded1","its":"12345002","mohallah":"Fatambu Hall","date":"2025-12-14","item":"Brownies","created_at":"2025-12-12T19:01:31.321119+00:00","partner_its":null}, 
+ {"id":"e9137539-04d7-42ae-8000-7ffb2b4f5e2a","its":"12345002","mohallah":"Fatambu Hall","date":"2025-12-16","item":"Dry Fruits","created_at":"2025-12-12T20:40:44.108684+00:00","partner_its":null}, 
+ {"id":"04ae8d7f-4c46-4db8-8feb-6d6108172db9","its":"12345002","mohallah":"Fatambu Hall","date":"2025-12-17","item":"Dry Fruits","created_at":"2025-12-13T03:13:05.727277+00:00","partner_its":null}, 
+ {"id":"b60c082a-4aed-4add-9593-aea1781310b0","its":"12345002","mohallah":"Fatambu Hall","date":"2025-12-18","item":"Coffee","created_at":"2025-12-13T03:36:41.773902+00:00","partner_its":null}]
