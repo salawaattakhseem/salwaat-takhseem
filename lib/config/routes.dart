@@ -6,6 +6,7 @@ import '../screens/common/login_screen.dart';
 import '../screens/common/forgot_password_screen.dart';
 import '../screens/common/change_password_screen.dart';
 import '../screens/common/profile_screen.dart';
+import '../screens/common/marketplace_screen.dart';
 
 // User Screens
 import '../screens/user/user_dashboard.dart';
@@ -37,6 +38,7 @@ class AppRoutes {
   static const String forgotPassword = '/forgot-password';
   static const String changePassword = '/change-password';
   static const String profile = '/profile';
+  static const String marketplace = '/marketplace';
   
   // User Routes
   static const String userDashboard = '/user/dashboard';
@@ -74,6 +76,8 @@ class AppRoutes {
         return _buildRoute(const ChangePasswordScreen(), settings);
       case profile:
         return _buildRoute(const ProfileScreen(), settings);
+      case marketplace:
+        return _buildRoute(const MarketplaceScreen(), settings);
       
       // User Routes
       case userDashboard:

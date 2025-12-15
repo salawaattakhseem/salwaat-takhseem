@@ -171,6 +171,65 @@ class _UserDashboardState extends State<UserDashboard> {
                   ),
                 ),
                 
+                const SizedBox(height: 12),
+                
+                // Community Marketplace Button
+                InkWell(
+                  onTap: () => Navigator.pushNamed(context, AppRoutes.marketplace),
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.lightBrown),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.lightBrown.withOpacity(0.15),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Iconsax.shop, size: 20, color: AppColors.darkBrown),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Text(
+                            'Community Marketplace',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [AppColors.darkBrown, AppColors.mediumBrown],
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Text(
+                            'NEW',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Icon(Iconsax.arrow_right_3, size: 18, color: AppColors.darkBrown),
+                      ],
+                    ),
+                  ),
+                ),
+                
                 const SizedBox(height: 28),
                 
                 // Upcoming Bookings Section

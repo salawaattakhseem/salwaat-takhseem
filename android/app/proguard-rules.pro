@@ -14,6 +14,10 @@
 -keep class com.google.firebase.** { *; }
 -keep class com.google.android.gms.** { *; }
 
+# Play Core (for in-app updates, reviews, etc.)
+-keep class com.google.android.play.core.** { *; }
+-dontwarn com.google.android.play.core.**
+
 # Keep annotations
 -keepattributes *Annotation*
 -keepattributes SourceFile,LineNumberTable

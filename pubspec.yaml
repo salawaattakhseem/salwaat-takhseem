@@ -37,9 +37,6 @@ dependencies:
   # URL Launcher
   url_launcher: ^6.2.4
   
-  # Biometric Authentication
-  local_auth: ^2.3.0
-  
   # Skeleton Loading
   shimmer: ^3.0.0
   

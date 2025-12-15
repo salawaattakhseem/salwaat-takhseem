@@ -26,6 +26,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
     {'name': 'Abdullah Kapadia', 'mobile': '8320021832'},
     {'name': 'Taher Bootwala', 'mobile': '9484514813'},
     {'name': 'Yusuf Gundarwala', 'mobile': '9409086874'},
+    {'name': 'Mohammad Deputy', 'mobile': '9316317154'},
   ];
 
   @override
@@ -192,6 +193,33 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                       ),
                       const SizedBox(height: 12),
                       
+                      // Note for admin section - WhatsApp only
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Iconsax.warning_2, color: Colors.orange, size: 18),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Please message on WhatsApp only. Kindly avoid calling.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.orange,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
                       ..._adminContacts.map((admin) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: _buildContactCard(
@@ -199,6 +227,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                           mobile: admin['mobile']!,
                           role: 'Admin',
                           roleColor: AppColors.darkBrown,
+                          showCallButton: false,  // Hide call for admins
                         ),
                       )),
                       
@@ -270,6 +299,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
     required String mobile,
     required String role,
     required Color roleColor,
+    bool showCallButton = true,  // Default true for SubAdmin
   }) {
     return Card(
       elevation: 3,
@@ -346,38 +376,40 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
             // Action buttons row
             Row(
               children: [
-                // Call button
-                Expanded(
-                  child: InkWell(
-                    onTap: () => _makePhoneCall(mobile),
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.green.withOpacity(0.3)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Iconsax.call, color: Colors.green, size: 18),
-                          SizedBox(width: 6),
-                          Text(
-                            'Call',
-                            style: TextStyle(
-                              color: Colors.green,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
+                // Call button - only show if showCallButton is true
+                if (showCallButton) ...[
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _makePhoneCall(mobile),
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.green.withOpacity(0.3)),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Iconsax.call, color: Colors.green, size: 18),
+                            SizedBox(width: 6),
+                            Text(
+                              'Call',
+                              style: TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                // WhatsApp button
+                  const SizedBox(width: 10),
+                ],
+                // WhatsApp button - full width if no call button
                 Expanded(
                   child: InkWell(
                     onTap: () => _sendWhatsApp(mobile),
@@ -389,9 +421,9 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: const Color(0xFF25D366).withOpacity(0.3)),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Icon(Icons.chat, color: Color(0xFF25D366), size: 18),
                           SizedBox(width: 6),
                           Text(
