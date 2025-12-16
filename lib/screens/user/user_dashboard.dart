@@ -6,6 +6,7 @@ import '../../config/theme.dart';
 import '../../config/routes.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/booking_provider.dart';
+import '../../models/booking_model.dart';
 import '../../services/database_service.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/booking_card.dart';
@@ -46,6 +47,27 @@ class _UserDashboardState extends State<UserDashboard> {
         if (mounted) setState(() {});
       }
     }
+  }
+
+  // Helper to count only upcoming bookings (not completed)
+  int _getUpcomingCount(BookingProvider bookingProvider) {
+    final today = DateTime.now();
+    final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    
+    return bookingProvider.userBookings.where((booking) {
+      // Compare date strings (format: YYYY-MM-DD)
+      return booking.date.compareTo(todayString) >= 0;
+    }).length;
+  }
+
+  // Helper to get only upcoming bookings (not completed)
+  List<BookingModel> _getUpcomingBookings(BookingProvider bookingProvider) {
+    final today = DateTime.now();
+    final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    
+    return bookingProvider.userBookings.where((booking) {
+      return booking.date.compareTo(todayString) >= 0;
+    }).toList();
   }
 
   @override
@@ -117,7 +139,7 @@ class _UserDashboardState extends State<UserDashboard> {
                         child: _buildActionCard(
                           icon: Iconsax.ticket,
                           title: 'My Bookings',
-                          subtitle: '${bookingProvider.userBookings.length} active',
+                          subtitle: '${_getUpcomingCount(bookingProvider)} active',
                           onTap: () => Navigator.pushNamed(context, AppRoutes.myBooking),
                         ),
                       ),
@@ -254,10 +276,10 @@ class _UserDashboardState extends State<UserDashboard> {
                 
                 const SizedBox(height: 12),
                 
-                if (bookingProvider.userBookings.isEmpty)
+                if (_getUpcomingBookings(bookingProvider).isEmpty)
                   _buildEmptyState()
                 else
-                  ...bookingProvider.userBookings.take(3).map(
+                  ..._getUpcomingBookings(bookingProvider).take(3).map(
                     (booking) => BookingCard(
                       booking: booking,
                       showDeleteButton: false,

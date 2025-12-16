@@ -56,16 +56,8 @@ class _MyBookingScreenState extends State<MyBookingScreen> with SingleTickerProv
   }
 
   Future<void> _handleCancelBooking(String bookingId) async {
-    final confirm = await Helpers.showConfirmationDialog(
-      context,
-      title: 'Cancel Booking',
-      message: 'Are you sure you want to cancel this booking?',
-      confirmText: 'Cancel Booking',
-      isDestructive: true,
-    );
-
-    if (!confirm) return;
-
+    // Confirmation is handled by Dismissible's confirmDismiss
+    // So we just proceed with the deletion here
     final authProvider = context.read<AuthProvider>();
     final bookingProvider = context.read<BookingProvider>();
 
@@ -181,16 +173,37 @@ class _MyBookingScreenState extends State<MyBookingScreen> with SingleTickerProv
                                     },
                                     confirmDismiss: (direction) async {
                                       // Show confirmation dialog
-                                      return await Helpers.showConfirmationDialog(
+                                      final confirmed = await Helpers.showConfirmationDialog(
                                         context,
                                         title: 'Cancel Booking?',
                                         message: 'Are you sure you want to cancel this booking?',
                                         confirmText: 'Yes, Cancel',
                                         isDestructive: true,
                                       );
-                                    },
-                                    onDismissed: (direction) {
-                                      _handleCancelBooking(booking.id);
+                                      
+                                      if (!confirmed) return false;
+                                      
+                                      // Perform the delete
+                                      final authProvider = context.read<AuthProvider>();
+                                      final bookingProvider = context.read<BookingProvider>();
+                                      
+                                      final result = await bookingProvider.deleteBooking(
+                                        booking.id,
+                                        authProvider.currentUser!.its,
+                                      );
+                                      
+                                      if (mounted) {
+                                        Helpers.showSnackBar(
+                                          context,
+                                          result.message,
+                                          isError: !result.success,
+                                          isSuccess: result.success,
+                                        );
+                                      }
+                                      
+                                      // Always return false - let the provider's notifyListeners 
+                                      // handle the UI update instead of Dismissible's visual removal
+                                      return false;
                                     },
                                     background: Container(
                                       margin: const EdgeInsets.only(bottom: 12),
